@@ -1,0 +1,68 @@
+html,body,#content{
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+body{
+	background: #222221;
+}
+
+h2{
+	color: #ccc;
+	font-family: Verdana;
+	font-weight: normal;
+	margin: 10px;
+	padding: 0;
+	position: absolute;
+	top:0;
+	left: 0;
+}
+
+#r_graph, #p_graph{
+	width: 100%;
+	height: 50%;
+	position: relative;
+}
+
+#p_graph #pitch-markers{
+	position: absolute;
+	top: 25%;
+	left: 0;
+	width: 100%;
+	height: 50%;
+}
+
+.pitch-marker{
+	width: 100%;
+	opacity: 0.1;
+	margin-bottom: 1px;
+	background: #FFF;
+}
+
+.pitch-marker.highlight-harmony{
+	background: #0ff;
+	opacity: 0.2;
+}
+.pitch-marker.highlight-melody{
+	background: #0ff;
+	opacity: 0.5;
+}
+
+#main-menu{
+	position: absolute;
+	right: 0;
+	top: 0;
+	margin: 10px;
+	padding: 10px;
+	background: rgba(0,0,0,0.4);
+	width: 60px;
+	height: 120px;
+	text-align: center;
+}
+#main-menu button{
+	width: 100%;
+	height: 20px;
+	margin: 0 0 3px 0;
+}

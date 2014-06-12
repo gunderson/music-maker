@@ -1,0 +1,16 @@
+{
+  "name": "music-experiment",
+  "version": "0.0.0",
+  "homepage": "https://github.com/tooldigital/toolprototype-all-www",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "SoundJS": "*"
+  }
+}
