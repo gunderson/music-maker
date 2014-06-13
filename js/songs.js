@@ -56,7 +56,7 @@ var songs = {
 						scale: 0.27
 					})
 				]),
-				dyanmicCycle: new CycleGroup([
+				dyanmicCycles: new CycleGroup([
 					new Cycle({
 						rate: 1.2,
 						scale: 0.3
@@ -66,7 +66,7 @@ var songs = {
 						scale: 0.27
 					})
 				]),
-				durationCycle: new CycleGroup([
+				durationCycles: new CycleGroup([
 					new Cycle({
 						rate: 1.2,
 						scale: 0.3
@@ -153,7 +153,7 @@ var songs = {
 						scale: 0.27
 					})
 				]),
-				dyanmicCycle: new CycleGroup([
+				dyanmicCycles: new CycleGroup([
 					new Cycle({
 						rate: 1.2,
 						scale: 0.3
@@ -163,7 +163,7 @@ var songs = {
 						scale: 0.27
 					})
 				]),
-				durationCycle: new CycleGroup([
+				durationCycles: new CycleGroup([
 					new Cycle({
 						rate: 1.2,
 						scale: 0.3
@@ -241,7 +241,7 @@ var songs = {
 						scale: 0.27
 					})
 				]),
-				dyanmicCycle: new CycleGroup([
+				dyanmicCycles: new CycleGroup([
 					new Cycle({
 						rate: 1.2,
 						scale: 0.3
@@ -251,7 +251,7 @@ var songs = {
 						scale: 0.27
 					})
 				]),
-				durationCycle: new CycleGroup([
+				durationCycles: new CycleGroup([
 					new Cycle({
 						rate: 1.2,
 						scale: 0.3
@@ -360,7 +360,7 @@ var songs = {
 						scale: 0.27
 					})
 				]),
-				dyanmicCycle: new CycleGroup([
+				dyanmicCycles: new CycleGroup([
 					new Cycle({
 						rate: 1.2,
 						scale: 0.3
@@ -370,7 +370,7 @@ var songs = {
 						scale: 0.27
 					})
 				]),
-				durationCycle: new CycleGroup([
+				durationCycles: new CycleGroup([
 					new Cycle({
 						rate: 1.2,
 						scale: 0.3
@@ -384,6 +384,13 @@ var songs = {
 		}]
 	}
 }
+
+var beatCycle = new CycleGroup([
+					new Cycle({
+						rate: 1,
+						scale: 1
+					})
+				]);
 
 function Cycle(options){
 	this.rate = 1;

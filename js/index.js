@@ -68,14 +68,17 @@ function update(){
 	frameCount++;
 
 	
+	shiftCycle(beatCycle);
 
 	// For each voice in the song
 	for (var voiceIndex = 0, endVoiceIndex = currentSong.voices.length; voiceIndex < endVoiceIndex; voiceIndex++){
 		var voice = currentSong.voices[voiceIndex];
 
 		shiftCycle(voice.cycles.rhythmCycles);
-		shiftCycle(voice.cycles.pitchCycles)
-		shiftCycle(voice.cycles.harmonyCycles)
+		shiftCycle(voice.cycles.pitchCycles);
+		shiftCycle(voice.cycles.harmonyCycles);
+		shiftCycle(voice.cycles.dyanmicCycles);
+		shiftCycle(voice.cycles.durationCycles);
 
 
 		voice.notesToPlay = []
@@ -85,11 +88,11 @@ function update(){
 			var notes;
 			var melodyIndex = 0.5 * (1 + voice.cycles.pitchCycles.buffer[0]);
 			melodyIndex = (melodyIndex * noteIds.length) >> 0;
-			melodyIndex = clamp(melodyIndex, 0, noteIds.length - 1)
+			melodyIndex = clamp(melodyIndex, 0, noteIds.length - 1);
 
 			var harmonyIndex = 0.5 * (1 + voice.cycles.pitchCycles.buffer[0] + voice.cycles.harmonyCycles.buffer[0]);
 			harmonyIndex = (harmonyIndex * noteIds.length) >> 0;
-			harmonyIndex = clamp(harmonyIndex, 0, noteIds.length - 1)
+			harmonyIndex = clamp(harmonyIndex, 0, noteIds.length - 1);
 
 			highlightNote(voice, melodyIndex,harmonyIndex);
 
@@ -97,45 +100,15 @@ function update(){
 			if (voice.notesToPlay.indexOf(noteIds[harmonyIndex]) === -1) voice.notesToPlay.push(noteIds[harmonyIndex]);
 		}
 	}	
-	
-
-
-/*
-	shiftCycle(currentSong.rhythmCycles);
-	shiftCycle(currentSong.pitchCycles)
-	shiftCycle(currentSong.harmonyCycles)
-
-
-	notesToPlay = []
-
-	if (inflection(currentSong.rhythmCycles.buffer) === -1 &&
-		currentSong.rhythmCycles.buffer[0] >= settings.threshold){
-		var notes;
-		var melodyIndex = 0.5 * (1 + currentSong.pitchCycles.buffer[0]);
-		melodyIndex = (melodyIndex * noteIds.length) >> 0;
-		melodyIndex = clamp(melodyIndex, 0, noteIds.length - 1)
-
-		var harmonyIndex = 0.5 * (1 + currentSong.pitchCycles.buffer[0] + currentSong.harmonyCycles.buffer[0]);
-		harmonyIndex = (harmonyIndex * noteIds.length) >> 0;
-		harmonyIndex = clamp(harmonyIndex, 0, noteIds.length - 1)
-
-		highlightNote(melodyIndex,harmonyIndex);
-
-		if (notesToPlay.indexOf(noteIds[melodyIndex]) === -1) notesToPlay.push(noteIds[melodyIndex]);
-		if (notesToPlay.indexOf(noteIds[harmonyIndex]) === -1) notesToPlay.push(noteIds[harmonyIndex]);
-	}*/
-
 }
 
 function draw(){
 	moveBeatMarkersX();
 	
-	// TODO: Add a beat cycle
-	if (inflection(currentSong.voices[0].cycles.rhythmCycles[0].buffer) === -1){
+	if (inflection(beatCycle[0].buffer) === -1){
 		beat();
 	}
 	
-
 	// clear canvases hack
 	r_canvas.height = r_canvas.height;
 	p_canvas.height = p_canvas.height;
@@ -166,8 +139,8 @@ function playNotes(){
 }
 
 function addNote(voice, noteId, options){
-	if (voice.notesToPlay.indexOf(noteIds[melodyIndex]) === -1){
-		voice.notesToPlay.push(noteIds[melodyIndex]);
+	if (voice.notesToPlay.indexOf(noteIds[noteId]) === -1){
+		voice.notesToPlay.push(noteIds[noteI]);
 	}
 }
 
@@ -220,10 +193,6 @@ function changeSong(songName){
 
 	changeChord();
 
-	// document.querySelector("h2 #key").innerHTML = changes[0];
-	// makePitchMarkers(noteIds.length);
-	// scalePitchMarkers();
-
 	console.log(songs[songName])
 }
 
@@ -273,11 +242,11 @@ function scalePitchMarkers(voice){
 function shiftCycle(cycle){
 	var cycleValue = composeCycles(cycle);
 	var maxBufferLength = r_canvas.offsetWidth / settings.speedX;
-	cycle.buffer.unshift(cycleValue);	
-	if (cycle.buffer.length >= maxBufferLength){
+	if (cycle.buffer.length >= maxBufferLength || cycle.noBuffer === true){
 		cycle.buffer.pop();
 	}
-	return this;
+	cycle.buffer.unshift(cycleValue);	
+	return cycleValue;
 }
 
 function moveBeatMarkersX(){
@@ -306,10 +275,10 @@ function composeCycles(cycles){
 	return d3.mean(
 		cycles.map(function(obj){
 			//magic math here
-			obj.buffer.unshift(Math.cos(frameCount * obj.rate * beatRate) * obj.scale);
 			if (obj.buffer.length >= maxBufferLength || obj.noBuffer === true){
 				obj.buffer.pop();
 			}
+			obj.buffer.unshift(Math.cos(frameCount * obj.rate * beatRate) * obj.scale);
 			return obj.buffer[0];
 		})
 	);
