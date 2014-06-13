@@ -3,6 +3,7 @@
 <html>
 <head>
 	<link href="css/index.css" rel="stylesheet" />
+	<link href="css/font-awesome.min.css" rel="stylesheet" />
 </head>
 <body>
 	<div id="content">
@@ -16,7 +17,7 @@
 			</div>
 			<h2>Pitch Graph - key: <span id="key"></span></h2>
 		</div>
-		<div id="d_graph" class="graph">
+		<!--<div id="d_graph" class="graph">
 			<canvas id="d_canvas"></canvas>
 			<div id="duration-markers">
 			</div>
@@ -25,20 +26,52 @@
 		<div id="v_graph" class="graph">
 			<canvas id="v_canvas"></canvas>
 			<h2>Dynamic Graph</h2>
-		</div>
+		</div>-->
 	</div>
 	<div id="main-menu">
+		<div id="open-btn" class="fa fa-bars"></div>
+		<div id="close-btn">&#10006;</div>
+
 		<button id='play-btn'>Play</button>
 		<button id='pause-btn'>Pause</button>
-		<button id='waltz-btn'>"Waltz"</button>
+		<div id="playlist-controls">
+		<hr />
+			<h2>Change Song</h2>
+			<button id='waltz-btn'>"Waltz"</button>
+			<button id='demo-btn'>"Demo"</button>
+		</div>
+		<div id="waltz-controls">
+		<hr />
+			<h2>Waltz Controls</h2>
+			<button id='reset-btn'>reset</button>
+			<button id='ace-btn'>Ace</button>
+			<button id='break-btn'>Break</button>
+		</div>
+		<div id="demo-controls">
+		<hr />
+			<h2>Demo Controls</h2>
+			<button id='demo-0-btn'>reset</button>
+			<button id='demo-1-btn'>Wave #1</button>
+			<button id='demo-2-btn'>Wave #2</button>
+			<button id='demo-3-btn'>Wave #3</button>
+		<hr />
+			<button id='threshold-btn'>Threshold</button>
+			<button id='harmony-btn'>Harmony</button>
+		</div>
+		<!--<button id='waltz-btn'>"Waltz"</button>
 		<button id='submarine-btn'>"Submarine"</button>
 		<button id='stairway-btn'>"Stairway"</button>
-		<button id='sia-btn'>"sia"</button>
+		<button id='sia-btn'>"sia"</button> -->
+	</div>
+	<div id="loader">
+		<h2>Loading <span  class="fa fa-spin fa-circle-o-notch"></span></h2>
 	</div>
 </body>
-<script src="bower_components/underscore/underscore.js"></script>
+<script src="bower_components/jquery/dist/jquery.min.js"></script>
+<script src="bower_components/lodash/dist/lodash.min.js"></script>
 <script src="bower_components/dat-gui/build/dat.gui.js"></script>
 <script src="bower_components/SoundJS/lib/soundjs-NEXT.min.js"></script>
+<script src="bower_components/greensock/src/minified/TweenMax.min.js"></script>
 <script src="http://klangfiles.s3.amazonaws.com/uploads/projects/l1Aoa/klang.js"></script>
 <script src="js/index.js"></script>
 <script src="js/songs.js"></script>

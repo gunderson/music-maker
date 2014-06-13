@@ -99,6 +99,10 @@ function pad(num, minDigits){
 	return num;
 }
 
-createjs.Sound.addEventListener("fileload", onSoundsLoad);
-createjs.Sound.registerManifest(generatePianoManifest(manifest), audioPath);
+// createjs.Sound.addEventListener("fileload", onSoundsLoad);
+// createjs.Sound.registerManifest(generatePianoManifest(manifest), audioPath);
+document.onreadystatechange =function(e){
+	setup()
+	document.onreadystatechange = null;
+}
  

@@ -8,10 +8,10 @@ var r_canvas = document.querySelector("#r_canvas");
 var r_ctx = r_canvas.getContext("2d");
 var p_canvas = document.querySelector("#p_canvas");
 var p_ctx = p_canvas.getContext("2d");
-var v_canvas = document.querySelector("#v_canvas");
+/*var v_canvas = document.querySelector("#v_canvas");
 var v_ctx = v_canvas.getContext("2d");
 var d_canvas = document.querySelector("#d_canvas");
-var d_ctx = d_canvas.getContext("2d");
+var d_ctx = d_canvas.getContext("2d");*/
 
 var loopFrameId = false;
 var frameCount = 0;
@@ -34,13 +34,13 @@ function setup(){
 	settings = {
 		offsetY: r_canvas.offsetHeight >> 1,
 		amplitude: -r_canvas.offsetHeight >> 2,
-		speedX: 3, // px/frame
-		threshold: 0.1,
+		speedX: 5, // px/frame
 		bassFrequency: 2
 	};
 
 	Klang.init("http://klangfiles.s3.amazonaws.com/uploads/projects/l1Aoa/config.json", function() {
 		changeSong('waltz');
+		document.getElementById("loader").style.display = "none";
 		play();
 		beat();
 		onResize();
@@ -111,7 +111,7 @@ function update(){
 		voice.notesToPlay = []
 
 		if (inflection(voice.cycles.rhythmCycles.buffer) === -1 &&
-			voice.cycles.rhythmCycles.buffer[0] >= settings.threshold){
+			voice.cycles.rhythmCycles.buffer[0] >= voice.threshold){
 			var notes;
 			var melodyIndex = 0.5 * (1 + voice.cycles.pitchCycles.buffer[0]);
 			melodyIndex = (melodyIndex * noteIds.length) >> 0;
@@ -131,8 +131,6 @@ function update(){
 			addNote(voice, noteIds[harmonyIndex],{
 				volume: 0.5 * dynamicIndex
 			});
-			// if (voice.notesToPlay.indexOf(noteIds[melodyIndex]) === -1) voice.notesToPlay.push(noteIds[melodyIndex]);
-			// if (voice.notesToPlay.indexOf(noteIds[harmonyIndex]) === -1) voice.notesToPlay.push(noteIds[harmonyIndex]);
 		}
 	}	
 }
@@ -147,8 +145,8 @@ function draw(){
 	// clear canvases hack
 	r_canvas.height = r_canvas.height;
 	p_canvas.height = p_canvas.height;
-	d_canvas.height = d_canvas.height;
-	v_canvas.height = v_canvas.height;
+	/*d_canvas.height = d_canvas.height;
+	v_canvas.height = v_canvas.height;*/
 
 
 
@@ -156,17 +154,16 @@ function draw(){
 		var voice = currentSong.voices[voiceIndex];
 		drawBeats(r_ctx);
 		drawBeats(p_ctx);
-		drawBeats(d_ctx);
-		drawBeats(v_ctx);
+		// drawBeats(d_ctx);
+		// drawBeats(v_ctx);
 		drawComposite(r_ctx, voice.cycles.rhythmCycles.buffer);
 
 		drawComposite(p_ctx, Array.add(voice.cycles.pitchCycles.buffer, voice.cycles.harmonyCycles.buffer), "#088");
 		drawComposite(p_ctx, voice.cycles.pitchCycles.buffer);
-		drawComposite(d_ctx, voice.cycles.durationCycles.buffer);
-		drawComposite(v_ctx, voice.cycles.dyanmicCycles.buffer);
+		// drawComposite(d_ctx, voice.cycles.durationCycles.buffer);
+		// drawComposite(v_ctx, voice.cycles.dyanmicCycles.buffer);
 
-		drawthreshold(r_ctx);
-		drawthreshold(r_ctx);
+		drawthreshold(r_ctx,voice);
 	}
 }
 
@@ -177,16 +174,13 @@ function playNotes(){
 		for (var i = 0, endi = voice.notesToPlay.length; i < endi; i++){
 			var note = voice.notesToPlay[i];
 
-			/*createjs.Sound.play(voice.instrument + note.noteId, {
-				volume: note.volume,
-				startTime: 0,
-				duration: note.duration * beatTime
-			});*/
-			//var nextBeatTime = beatTime/1000 -(Klang.context.currentTime-startTime) % (beatTime/1000);
-			Klang.triggerEvent("piano_play", stringToMidi(note.noteId), note.volume);
-			Klang.triggerEvent("piano_stop", stringToMidi(note.noteId), note.duration * beatTime/1000);
-			Klang.triggerEvent("glockenspiel", stringToMidi(note.noteId), note.volume);
-			Klang.triggerEvent("pizzicato", stringToMidi(note.noteId), note.volume);
+			if (voice.sustainable){
+				Klang.triggerEvent(voice.instrument + "_play", stringToMidi(note.noteId), note.volume);
+				Klang.triggerEvent(voice.instrument + "_stop", stringToMidi(note.noteId), note.duration * beatTime/1000);
+			} else {
+				Klang.triggerEvent(voice.instrument, stringToMidi(note.noteId), note.volume);
+			}
+
 			Klang.triggerEvent("strings_volume", note.volume);
 			
 			lastBeatTime = Klang.context.currentTime;
@@ -205,11 +199,6 @@ function addNote(voice, noteId, options){
 	if (voice.notesToPlay.indexOf(noteId) === -1){
 		voice.notesToPlay.push(note)
 	}
-	/*
-	if (voice.notesToPlay.indexOf(stringToMidi(noteIds[melodyIndex])) === -1){
-		voice.notesToPlay.push(stringToMidi(noteIds[melodyIndex]));
-	}
-	*/
 }
 
 
@@ -224,10 +213,10 @@ function onResize(){
 	p_canvas.width = p_canvas.parentNode.offsetWidth;
 	r_canvas.height = p_canvas.parentNode.offsetHeight;
 	r_canvas.width = p_canvas.parentNode.offsetWidth;
-	v_canvas.height = p_canvas.parentNode.offsetHeight;
+	/*v_canvas.height = p_canvas.parentNode.offsetHeight;
 	v_canvas.width = p_canvas.parentNode.offsetWidth;
 	d_canvas.height = p_canvas.parentNode.offsetHeight;
-	d_canvas.width = p_canvas.parentNode.offsetWidth;
+	d_canvas.width = p_canvas.parentNode.offsetWidth;*/
 
 	settings.offsetY = r_canvas.height >> 1;
 	settings.amplitude = -r_canvas.height >> 2;
@@ -235,7 +224,7 @@ function onResize(){
 	for (var voiceIndex = 0, endVoiceIndex = currentSong.voices.length; voiceIndex < endVoiceIndex; voiceIndex++){
 		var voice = currentSong.voices[voiceIndex];
 		scalePitchMarkers(voice);
-		scaleDurationMarkers(voice);
+		// scaleDurationMarkers(voice);
 	}
 }
 
@@ -256,25 +245,33 @@ var changes;
 function changeSong(songName){
 	startTime = Klang.context.currentTime;
 	frameCount = 0;
-	changeTempo(songs[songName].tempo);
-	currentSong = songs[songName];
-	changes = songs[songName].changes;
+	resetSong(songName)
+	currentSong.name = songName;
+	changeTempo(currentSong.tempo);
+	changes = currentSong.changes;
 	// noteIds = getNotesInChord(changes[0]);
 	chordIndex = -1;
 
-	settings.threshold = songs[songName].threshold;
-	settings.bassFrequency = songs[songName].bassFrequency;
-	settings.changeRate = songs[songName].changeRate;
+	settings.bassFrequency = currentSong.bassFrequency;
+	settings.changeRate = currentSong.changeRate;
 
 	for (var voiceIndex = 0, endVoiceIndex = currentSong.voices.length; voiceIndex < endVoiceIndex; voiceIndex++){
 		var voice = currentSong.voices[voiceIndex];
-		makeDurationMarkers(voice, 5);
-		scaleDurationMarkers(voice);
+		// makeDurationMarkers(voice, 5);
+		// scaleDurationMarkers(voice);
 	}
 
 	changeChord();
 
-	console.log(songs[songName])
+}
+
+function resetSong(songName){
+	currentSong = _.cloneDeep(songs[songName || currentSong.name]);
+	_.each(currentSong.voices, function(voice){
+		_.each(voice.cycles, function(cycle){
+			cycle.buffer = [];
+		});
+	});
 }
 
 var beatTime = 0;
@@ -436,10 +433,10 @@ function drawBeats(ctx){
 	}
 }
 
-function drawthreshold(ctx){
+function drawthreshold(ctx, voice){
 	var amp = settings.amplitude,
 		offY = settings.offsetY,
-		y = offY + settings.threshold * amp;
+		y = offY + voice.threshold * amp;
 	ctx.strokeStyle = "#0cc";
 	ctx.beginPath();
 	ctx.moveTo(0, y);
