@@ -18,6 +18,7 @@ var frameCount = 0;
 
 var octaveRange = 4;
 var noteIds = [];
+var lastChord = "";
 
 var beatRate;
 
@@ -26,6 +27,7 @@ var chordIndex = 0;
 var loadedFiles = 0;
 
 var settings = {};
+var startTime = 0;
 
 function setup(){
 
@@ -37,13 +39,13 @@ function setup(){
 		bassFrequency: 2
 	};
 
-	changeSong('waltz');
-
+	Klang.init("http://klangfiles.s3.amazonaws.com/uploads/projects/l1Aoa/config.json", function() {
+		changeSong('waltz');
+		play();
+		beat();
+		onResize();
+	});
 	window.onresize = onResize;
-	onResize();
-
-	play();
-	beat();
 }
 
 
@@ -56,6 +58,7 @@ function loop(){
 }
 
 function play(){
+	startTime = Klang.context.currentTime;
 	if(!loopFrameId) {
 		loopFrameId = requestAnimationFrame(loop);
 	}
@@ -65,8 +68,28 @@ function stop(){
 	cancelAnimationFrame(loopFrameId);
 	loopFrameId = false;
 	metronomeId = false;
+	Klang.triggerEvent("stop");
 }
-
+function stringToMidi(string) {
+	var scale = [
+		"c",
+		"cd",
+		"d",
+		"de",
+		"e",
+		"f",
+		"fg",
+		"g",
+		"ga",
+		"a",
+		"ab",
+		"b",
+	];
+	var octave = parseInt(string.charAt(string.length-1));
+	var note = string.split(octave)[0];
+    var midiNoteNumber = scale.indexOf(note) + (octave*12);
+    return midiNoteNumber;
+}
 // var notesToPlay = []
 function update(){
 	frameCount++;
@@ -148,16 +171,25 @@ function draw(){
 }
 
 function playNotes(){
+
 	for (var voiceIndex = 0, endVoiceIndex = currentSong.voices.length; voiceIndex < endVoiceIndex; voiceIndex++){
 		var voice = currentSong.voices[voiceIndex];
-		
 		for (var i = 0, endi = voice.notesToPlay.length; i < endi; i++){
 			var note = voice.notesToPlay[i];
-			createjs.Sound.play(voice.instrument + note.noteId, {
+
+			/*createjs.Sound.play(voice.instrument + note.noteId, {
 				volume: note.volume,
 				startTime: 0,
 				duration: note.duration * beatTime
-			});
+			});*/
+			//var nextBeatTime = beatTime/1000 -(Klang.context.currentTime-startTime) % (beatTime/1000);
+			Klang.triggerEvent("piano_play", stringToMidi(note.noteId), note.volume);
+			Klang.triggerEvent("piano_stop", stringToMidi(note.noteId), note.duration * beatTime/1000);
+			Klang.triggerEvent("glockenspiel", stringToMidi(note.noteId), note.volume);
+			Klang.triggerEvent("pizzicato", stringToMidi(note.noteId), note.volume);
+			Klang.triggerEvent("strings_volume", note.volume);
+			
+			lastBeatTime = Klang.context.currentTime;
 		}
 	}
 }
@@ -173,6 +205,11 @@ function addNote(voice, noteId, options){
 	if (voice.notesToPlay.indexOf(noteId) === -1){
 		voice.notesToPlay.push(note)
 	}
+	/*
+	if (voice.notesToPlay.indexOf(stringToMidi(noteIds[melodyIndex])) === -1){
+		voice.notesToPlay.push(stringToMidi(noteIds[melodyIndex]));
+	}
+	*/
 }
 
 
@@ -217,6 +254,7 @@ var changes;
 
 
 function changeSong(songName){
+	startTime = Klang.context.currentTime;
 	frameCount = 0;
 	changeTempo(songs[songName].tempo);
 	currentSong = songs[songName];
@@ -261,6 +299,17 @@ function changeChord(){
 		makePitchMarkers(voice, noteIds.length);
 		scalePitchMarkers(voice);
 	}
+	if (changes[chordIndex] != lastChord ) {
+		Klang.triggerEvent("violins_stop");
+		for (var i = 0; i< noteIds.length; i++) {
+			if (i > 8) {
+				var note = stringToMidi(noteIds[i]);
+				Klang.triggerEvent("violins_play", note);
+			}
+		}
+	}
+	Klang.triggerEvent("bass", stringToMidi(noteIds[0]));
+	lastChord = changes[chordIndex];
 }
 
 function makePitchMarkers(voice, num){
@@ -344,8 +393,9 @@ function composeCycles(cycles){
 			return obj.buffer[0];
 		}).mean();
 }
-
+var lastBeatTime;
 function beat(){
+	
 	++numBeats;
 	beatMarkersX.unshift(settings.speedX / 2);
 	if (beatMarkersX[0] > r_canvas.width) beatMarkersX.pop();
