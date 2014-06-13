@@ -24,8 +24,6 @@ var loadedFiles = 0;
 var settings = {};
 
 function setup(){
-	window.onresize = onResize;
-	onResize();
 
 	settings = {
 		offsetY: r_canvas.offsetHeight >> 1,
@@ -36,6 +34,9 @@ function setup(){
 	};
 
 	changeSong('waltz');
+
+	window.onresize = onResize;
+	onResize();
 
 	play();
 	beat();
@@ -62,9 +63,44 @@ function stop(){
 	metronomeId = false;
 }
 
-var notesToPlay = []
+// var notesToPlay = []
 function update(){
 	frameCount++;
+
+	
+
+	// For each voice in the song
+	for (var voiceIndex = 0, endVoiceIndex = currentSong.voices.length; voiceIndex < endVoiceIndex; voiceIndex++){
+		var voice = currentSong.voices[voiceIndex];
+
+		shiftCycle(voice.cycles.rhythmCycles);
+		shiftCycle(voice.cycles.pitchCycles)
+		shiftCycle(voice.cycles.harmonyCycles)
+
+
+		voice.notesToPlay = []
+
+		if (inflection(voice.cycles.rhythmCycles.buffer) === -1 &&
+			voice.cycles.rhythmCycles.buffer[0] >= settings.threshold){
+			var notes;
+			var melodyIndex = 0.5 * (1 + voice.cycles.pitchCycles.buffer[0]);
+			melodyIndex = (melodyIndex * noteIds.length) >> 0;
+			melodyIndex = clamp(melodyIndex, 0, noteIds.length - 1)
+
+			var harmonyIndex = 0.5 * (1 + voice.cycles.pitchCycles.buffer[0] + voice.cycles.harmonyCycles.buffer[0]);
+			harmonyIndex = (harmonyIndex * noteIds.length) >> 0;
+			harmonyIndex = clamp(harmonyIndex, 0, noteIds.length - 1)
+
+			highlightNote(voice, melodyIndex,harmonyIndex);
+
+			if (voice.notesToPlay.indexOf(noteIds[melodyIndex]) === -1) voice.notesToPlay.push(noteIds[melodyIndex]);
+			if (voice.notesToPlay.indexOf(noteIds[harmonyIndex]) === -1) voice.notesToPlay.push(noteIds[harmonyIndex]);
+		}
+	}	
+	
+
+
+/*
 	shiftCycle(currentSong.rhythmCycles);
 	shiftCycle(currentSong.pitchCycles)
 	shiftCycle(currentSong.harmonyCycles)
@@ -87,14 +123,15 @@ function update(){
 
 		if (notesToPlay.indexOf(noteIds[melodyIndex]) === -1) notesToPlay.push(noteIds[melodyIndex]);
 		if (notesToPlay.indexOf(noteIds[harmonyIndex]) === -1) notesToPlay.push(noteIds[harmonyIndex]);
-	}
+	}*/
 
 }
 
 function draw(){
 	moveBeatMarkersX();
 	
-	if (inflection(currentSong.rhythmCycles[0].buffer) === -1){
+	// TODO: Add a beat cycle
+	if (inflection(currentSong.voices[0].cycles.rhythmCycles[0].buffer) === -1){
 		beat();
 	}
 	
@@ -105,20 +142,32 @@ function draw(){
 
 
 
-	drawBeats(r_ctx);
-	drawBeats(p_ctx);
-	drawComposite(r_ctx, currentSong.rhythmCycles.buffer);
+	for (var voiceIndex = 0, endVoiceIndex = currentSong.voices.length; voiceIndex < endVoiceIndex; voiceIndex++){
+		var voice = currentSong.voices[voiceIndex];
+		drawBeats(r_ctx);
+		drawBeats(p_ctx);
+		drawComposite(r_ctx, voice.cycles.rhythmCycles.buffer);
 
-	drawComposite(p_ctx, Array.add(currentSong.pitchCycles.buffer, currentSong.harmonyCycles.buffer), "#088");
-	drawComposite(p_ctx, currentSong.pitchCycles.buffer);
+		drawComposite(p_ctx, Array.add(voice.cycles.pitchCycles.buffer, voice.cycles.harmonyCycles.buffer), "#088");
+		drawComposite(p_ctx, voice.cycles.pitchCycles.buffer);
 
-	drawthreshold(r_ctx);
+		drawthreshold(r_ctx);
+	}
 }
 
 function playNotes(){
-	console.log(notesToPlay)
-	for (var i = 0, endi = notesToPlay.length; i < endi; i++){
-		createjs.Sound.play(notesToPlay[i]);
+	for (var voiceIndex = 0, endVoiceIndex = currentSong.voices.length; voiceIndex < endVoiceIndex; voiceIndex++){
+		var voice = currentSong.voices[voiceIndex];
+		
+		for (var i = 0, endi = voice.notesToPlay.length; i < endi; i++){
+			createjs.Sound.play(voice.instrument + voice.notesToPlay[i]);
+		}
+	}
+}
+
+function addNote(voice, noteId, options){
+	if (voice.notesToPlay.indexOf(noteIds[melodyIndex]) === -1){
+		voice.notesToPlay.push(noteIds[melodyIndex]);
 	}
 }
 
@@ -138,7 +187,10 @@ function onResize(){
 	settings.offsetY = r_canvas.height >> 1;
 	settings.amplitude = -r_canvas.height >> 2;
 
-	scalePitchMarkers()
+	for (var voiceIndex = 0, endVoiceIndex = currentSong.voices.length; voiceIndex < endVoiceIndex; voiceIndex++){
+		var voice = currentSong.voices[voiceIndex];
+		scalePitchMarkers(voice);
+	}
 }
 
 /***************************************************/
@@ -155,19 +207,22 @@ var changes;
 
 
 function changeSong(songName){
+	frameCount = 0;
 	changeTempo(songs[songName].tempo);
 	currentSong = songs[songName];
 	changes = songs[songName].changes;
-	noteIds = getNotesInChord(changes[0]);
-	chordIndex = 0;
+	// noteIds = getNotesInChord(changes[0]);
+	chordIndex = -1;
 
 	settings.threshold = songs[songName].threshold;
 	settings.bassFrequency = songs[songName].bassFrequency;
 	settings.changeRate = songs[songName].changeRate;
 
-	document.querySelector("h2 #key").innerHTML = changes[0];
-	makePitchMarkers(noteIds.length);
-	scalePitchMarkers();
+	changeChord();
+
+	// document.querySelector("h2 #key").innerHTML = changes[0];
+	// makePitchMarkers(noteIds.length);
+	// scalePitchMarkers();
 
 	console.log(songs[songName])
 }
@@ -188,14 +243,18 @@ function changeChord(){
 	chordIndex = (chordIndex + 1) % changes.length;
 	noteIds = getNotesInChord(changes[chordIndex]);
 	document.querySelector("h2 #key").innerHTML = changes[chordIndex];
-	makePitchMarkers(noteIds.length);
-	scalePitchMarkers();
+	for (var voiceIndex = 0, endVoiceIndex = currentSong.voices.length; voiceIndex < endVoiceIndex; voiceIndex++){
+		var voice = currentSong.voices[voiceIndex];
+		makePitchMarkers(voice, noteIds.length);
+		scalePitchMarkers(voice);
+	}
 }
 
-function makePitchMarkers(num){
+function makePitchMarkers(voice, num){
+	
 	var container = document.querySelector('#pitch-markers');
 	container.innerHTML = "";
-	pitchMarkers = [];
+	var pitchMarkers = voice.pitchMarkers = [];
 	for (var i = 0; i < num; i++){
 		var pitchMarker = document.createElement("div");
 		pitchMarker.classList.add('pitch-marker');
@@ -204,10 +263,10 @@ function makePitchMarkers(num){
 	}
 }
 
-function scalePitchMarkers(){
+function scalePitchMarkers(voice){
 	var container = document.querySelector('#pitch-markers');
-	for (var i = 0, endi = pitchMarkers.length; i < endi; i++){
-		pitchMarkers[i].style.height = ((container.offsetHeight / endi) - 1) + "px";
+	for (var i = 0, endi = voice.pitchMarkers.length; i < endi; i++){
+		voice.pitchMarkers[i].style.height = ((container.offsetHeight / endi) - 1) + "px";
 	}
 }
 
@@ -265,9 +324,9 @@ function beat(){
 	var bassNote = changes[chordIndex].substr(0,1) + 0
 
 	if (numBeats % settings.bassFrequency === 0 &&
-		notesToPlay.indexOf(bassNote) === -1) {
+		currentSong.voices[0].notesToPlay.indexOf(bassNote) === -1) {
 
-		notesToPlay.push(bassNote);
+		currentSong.voices[0].notesToPlay.push(bassNote);
 	}
 }
 
@@ -310,14 +369,15 @@ function drawthreshold(ctx){
 	ctx.stroke();
 }
 
-function highlightNote(melodyIndex, harmonyIndex){
-	console.log(melodyIndex,harmonyIndex)
+function highlightNote(voice, melodyIndex, harmonyIndex){
+	// console.log(melodyIndex,harmonyIndex)
+	var pitchMarkers = voice.pitchMarkers;
 	for (var i = 0, endi = pitchMarkers.length; i<endi; i++){
 		pitchMarkers[i].classList.remove('highlight-melody');
 		pitchMarkers[i].classList.remove('highlight-harmony');
 	}
 
-	console.log("harmonyIndex",(endi) - harmonyIndex, pitchMarkers.length)
+	// console.log("harmonyIndex",(endi) - harmonyIndex, pitchMarkers.length)
 
 	pitchMarkers[endi - harmonyIndex - 1].classList.add('highlight-harmony');
 	pitchMarkers[endi - melodyIndex - 1].classList.add('highlight-melody');

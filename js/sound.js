@@ -84,7 +84,7 @@ function generatePianoManifest(manifest){
 	for (var i = 1; i < numNotes + 1; i++){
 		var noteId = scale[(i - 1) % 12] + ((i / 12) >> 0);
 		manifest.push({
-			id: noteId,
+			id: "piano" + noteId,
 			src: "ff-" + pad(i,3) +".wav"
 		})
 	}

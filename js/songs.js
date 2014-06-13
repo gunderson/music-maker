@@ -1,23 +1,22 @@
 var songs = {
 	"waltz": {
-		tempo: 120,
-		threshold: 0.075,
-		bassFrequency: 3,
-		changeRate: 3,
+		tempo: 200,
+		threshold: -0.25, // peaks above this level in the rhythm cycle signal a note
+		bassFrequency: 6, // play the root of the chord every x beats
+		changeRate: 6, // move to the next change every x beats
 		changes: ["c","c","f","f","g","g","e","e","f","f","f","f","g","g","c","c"],
 		//cycle groups should be contained within a single voice
-		/*
-		voices : {
+		
+		voices : [{
 			instrument: "piano",
 			cycles: {
-		*/
 				rhythmCycles : new CycleGroup([
 					new Cycle({
 						rate: 1,
 						scale: 1
 					}),
 					new Cycle({
-						rate: 3,
+						rate: 0.33333,
 						scale: 1
 					}),
 					new Cycle({
@@ -56,72 +55,18 @@ var songs = {
 						rate: 2.7,
 						scale: 0.27
 					})
-				])
-			/* }
-		} */
-	},
-	"stairway": {
-		tempo: 150,
-		threshold: 0.25,
-		bassFrequency: 1,
-		changeRate: 2,
-		changes: ["am","am","g","g","f","f","f","g"],
-		rhythmCycles : (function(){
-			var c = [
-				{
-					rate: 1,
-					scale: 1,
-					buffer: []
-				},
-				{
-					rate: 2,
-					scale: 2,
-					buffer: []
-				},
-				{
-					rate: 0.625,
-					scale: 0,
-					buffer: []
-				},
-				{
-					rate: 1/4,
-					scale: 1,
-					buffer: []
-				},
-				{
-					rate: 1/12,
-					scale: 1.3,
-					buffer: []
-				}
-			];
-			c.buffer = [];
-			return c;
-		})(),
-		pitchCycles: (function (){
-			var c = [{
-				rate: 0.8,
-				scale: 1,
-				buffer: []
-			},
-			{
-				rate: 2,
-				scale: 2,
-				buffer: []
-			},
-			{
-				rate: 4,
-				scale: 0,
-				buffer: []
-			},
-			{
-				rate: 12,
-				scale: 0,
-				buffer: []
-			}];
-			c.buffer = [];
-			return c;
-		})(),
-				harmonyCycles:  new CycleGroup([
+				]),
+				dyanmicCycle: new CycleGroup([
+					new Cycle({
+						rate: 1.2,
+						scale: 0.3
+					}),
+					new Cycle({
+						rate: 2.7,
+						scale: 0.27
+					})
+				]),
+				durationCycle: new CycleGroup([
 					new Cycle({
 						rate: 1.2,
 						scale: 0.3
@@ -131,6 +76,105 @@ var songs = {
 						scale: 0.27
 					})
 				])
+			}
+		}]
+	},
+	"stairway": {
+		tempo: 150,
+		threshold: 0.25,
+		bassFrequency: 1,
+		changeRate: 2,
+		changes: ["am","am","g","g","f","f","f","g"],	
+		voices : [{
+			instrument: "piano",
+			cycles: {
+				rhythmCycles : (function(){
+					var c = [
+						{
+							rate: 1,
+							scale: 1,
+							buffer: []
+						},
+						{
+							rate: 2,
+							scale: 2,
+							buffer: []
+						},
+						{
+							rate: 0.625,
+							scale: 0,
+							buffer: []
+						},
+						{
+							rate: 1/4,
+							scale: 1,
+							buffer: []
+						},
+						{
+							rate: 1/12,
+							scale: 1.3,
+							buffer: []
+						}
+					];
+					c.buffer = [];
+					return c;
+				})(),
+				pitchCycles: (function (){
+					var c = [{
+						rate: 0.8,
+						scale: 1,
+						buffer: []
+					},
+					{
+						rate: 0.31,
+						scale: 2,
+						buffer: []
+					},
+					{
+						rate: 4,
+						scale: 0,
+						buffer: []
+					},
+					{
+						rate: 12,
+						scale: 0,
+						buffer: []
+					}];
+					c.buffer = [];
+					return c;
+				})(),
+				harmonyCycles:  new CycleGroup([
+					new Cycle({
+						rate: 1.2,
+						scale: 0.3
+					}),
+					new Cycle({
+						rate: 2.7,
+						scale: 0.27
+					})
+				]),
+				dyanmicCycle: new CycleGroup([
+					new Cycle({
+						rate: 1.2,
+						scale: 0.3
+					}),
+					new Cycle({
+						rate: 2.7,
+						scale: 0.27
+					})
+				]),
+				durationCycle: new CycleGroup([
+					new Cycle({
+						rate: 1.2,
+						scale: 0.3
+					}),
+					new Cycle({
+						rate: 2.7,
+						scale: 0.27
+					})
+				])
+			}
+		}]
 	},
 	"submarine": {
 		tempo: 160,
@@ -139,51 +183,54 @@ var songs = {
 		changeRate: 2,
 		// changes: ["f","f","f","f","em","em","a","a","dm","dm","dm","dm"],
 		changes: ["c","c","c","ab","f","f","f","dm","gm","gm","gm","f"],
-		rhythmCycles : (function(){
-			var c = [
-				{
-					rate: 1,
-					scale: 1,
-					buffer: []
-				},
-				{
-					rate: 2,
-					scale: 1.2,
-					buffer: []
-				},
-				{
-					rate: 1/4,
-					scale: 1.2,
-					buffer: []
-				},
-				{
-					rate: 1/12,
-					scale: 0.6,
-					buffer: []
-				}
-			];
-			c.buffer = [];
-			return c;
-		})(),
-		pitchCycles: (function (){
-			var c = [{
-				rate: 0.4,
-				scale: 1,
-				buffer: []
-			},
-			{
-				rate: 1/4,
-				scale: 1,
-				buffer: []
-			},
-			{
-				rate: 1/16,
-				scale: 1,
-				buffer: []
-			}];
-			c.buffer = [];
-			return c;
-		})(),
+		voices : [{
+			instrument: "piano",
+			cycles: {
+				rhythmCycles : (function(){
+					var c = [
+						{
+							rate: 1,
+							scale: 1,
+							buffer: []
+						},
+						{
+							rate: 2,
+							scale: 1.2,
+							buffer: []
+						},
+						{
+							rate: 1/4,
+							scale: 1.2,
+							buffer: []
+						},
+						{
+							rate: 1/12,
+							scale: 0.6,
+							buffer: []
+						}
+					];
+					c.buffer = [];
+					return c;
+				})(),
+				pitchCycles: (function (){
+					var c = [{
+						rate: 0.4,
+						scale: 1,
+						buffer: []
+					},
+					{
+						rate: 1/4,
+						scale: 1,
+						buffer: []
+					},
+					{
+						rate: 1/16,
+						scale: 1,
+						buffer: []
+					}];
+					c.buffer = [];
+					return c;
+				})(),
 				harmonyCycles:  new CycleGroup([
 					new Cycle({
 						rate: 1.2,
@@ -193,7 +240,29 @@ var songs = {
 						rate: 2.7,
 						scale: 0.27
 					})
+				]),
+				dyanmicCycle: new CycleGroup([
+					new Cycle({
+						rate: 1.2,
+						scale: 0.3
+					}),
+					new Cycle({
+						rate: 2.7,
+						scale: 0.27
+					})
+				]),
+				durationCycle: new CycleGroup([
+					new Cycle({
+						rate: 1.2,
+						scale: 0.3
+					}),
+					new Cycle({
+						rate: 2.7,
+						scale: 0.27
+					})
 				])
+			}
+		}]
 	},
 	"sia": {
 		tempo: 180,
@@ -233,51 +302,54 @@ var songs = {
 			"am","am",   "g","g",
 			"g","c",   "e","e",
 			],
-		rhythmCycles : (function(){
-			var c = [
-				{
-					rate: 1,
-					scale: 1,
-					buffer: []
-				},
-				{
-					rate: 2,
-					scale: 1.2,
-					buffer: []
-				},
-				{
-					rate: 1/4,
-					scale: 0.8,
-					buffer: []
-				},
-				{
-					rate: 1/32,
-					scale: 1,
-					buffer: []
-				}
-			];
-			c.buffer = [];
-			return c;
-		})(),
-		pitchCycles: (function (){
-			var c = [{
-				rate: 0.5,
-				scale: 1,
-				buffer: []
-			},
-			{
-				rate: 0.25,
-				scale: 1,
-				buffer: []
-			},
-			{
-				rate: 1/16,
-				scale: 1,
-				buffer: []
-			}];
-			c.buffer = [];
-			return c;
-		})(),
+		voices : [{
+			instrument: "piano",
+			cycles: {
+				rhythmCycles : (function(){
+					var c = [
+						{
+							rate: 1,
+							scale: 1,
+							buffer: []
+						},
+						{
+							rate: 2,
+							scale: 1.2,
+							buffer: []
+						},
+						{
+							rate: 1/4,
+							scale: 0.8,
+							buffer: []
+						},
+						{
+							rate: 1/32,
+							scale: 1,
+							buffer: []
+						}
+					];
+					c.buffer = [];
+					return c;
+				})(),
+				pitchCycles: (function (){
+					var c = [{
+						rate: 0.5,
+						scale: 1,
+						buffer: []
+					},
+					{
+						rate: 0.25,
+						scale: 1,
+						buffer: []
+					},
+					{
+						rate: 1/16,
+						scale: 1,
+						buffer: []
+					}];
+					c.buffer = [];
+					return c;
+				})(),
 				harmonyCycles:  new CycleGroup([
 					new Cycle({
 						rate: 1.2,
@@ -287,7 +359,29 @@ var songs = {
 						rate: 2.7,
 						scale: 0.27
 					})
+				]),
+				dyanmicCycle: new CycleGroup([
+					new Cycle({
+						rate: 1.2,
+						scale: 0.3
+					}),
+					new Cycle({
+						rate: 2.7,
+						scale: 0.27
+					})
+				]),
+				durationCycle: new CycleGroup([
+					new Cycle({
+						rate: 1.2,
+						scale: 0.3
+					}),
+					new Cycle({
+						rate: 2.7,
+						scale: 0.27
+					})
 				])
+			}
+		}]
 	}
 }
 
