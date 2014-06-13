@@ -1,18 +1,30 @@
 <html>
+<html>
+<html>
 <head>
 	<link href="css/index.css" rel="stylesheet" />
 </head>
 <body>
 	<div id="content">
-		<div id="r_graph">
+		<div id="r_graph" class="graph">
 			<canvas id="r_canvas"></canvas>
 			<h2>Rhythm Graph</h2>
 		</div>
-		<div id="p_graph">
+		<div id="p_graph" class="graph">
 			<canvas id="p_canvas"></canvas>
 			<div id="pitch-markers">
 			</div>
 			<h2>Pitch Graph - key: <span id="key"></span></h2>
+		</div>
+		<div id="d_graph" class="graph">
+			<canvas id="d_canvas"></canvas>
+			<div id="duration-markers">
+			</div>
+			<h2>Duration graph</h2>
+		</div>
+		<div id="v_graph" class="graph">
+			<canvas id="v_canvas"></canvas>
+			<h2>Dynamic Graph</h2>
 		</div>
 	</div>
 	<div id="main-menu">
@@ -24,7 +36,6 @@
 		<button id='sia-btn'>"sia"</button>
 	</div>
 </body>
-<script src="node_modules/d3/d3.min.js"></script>
 <script src="bower_components/underscore/underscore.js"></script>
 <script src="bower_components/dat-gui/build/dat.gui.js"></script>
 <script src="bower_components/SoundJS/lib/soundjs-NEXT.min.js"></script>
@@ -32,4 +43,9 @@
 <script src="js/songs.js"></script>
 <script src="js/sound.js"></script>
 <script src="js/main_menu.js"></script>
+
+<script type="text/template" id="voice-template">
+
+
+</script>
 </html>

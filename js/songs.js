@@ -58,12 +58,16 @@ var songs = {
 				]),
 				dyanmicCycles: new CycleGroup([
 					new Cycle({
-						rate: 1.2,
-						scale: 0.3
+						rate: 1/32,
+						scale: 0.5
 					}),
 					new Cycle({
-						rate: 2.7,
-						scale: 0.27
+						rate: 1/1024,
+						scale: 0.5
+					}),
+					new Cycle({
+						rate: 1/12,
+						scale: 1
 					})
 				]),
 				durationCycles: new CycleGroup([

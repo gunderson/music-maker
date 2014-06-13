@@ -8,6 +8,10 @@ var r_canvas = document.querySelector("#r_canvas");
 var r_ctx = r_canvas.getContext("2d");
 var p_canvas = document.querySelector("#p_canvas");
 var p_ctx = p_canvas.getContext("2d");
+var v_canvas = document.querySelector("#v_canvas");
+var v_ctx = v_canvas.getContext("2d");
+var d_canvas = document.querySelector("#d_canvas");
+var d_ctx = d_canvas.getContext("2d");
 
 var loopFrameId = false;
 var frameCount = 0;
@@ -96,8 +100,14 @@ function update(){
 
 			highlightNote(voice, melodyIndex,harmonyIndex);
 
-			addNote(voice, noteIds[melodyIndex]);
-			addNote(voice, noteIds[harmonyIndex]);
+			var dynamicIndex = clamp(0.5 * (1 + voice.cycles.dyanmicCycles.buffer[0] + voice.cycles.dyanmicCycles.buffer[0]),0,1);
+
+			addNote(voice, noteIds[melodyIndex],{
+				volume: 1 * dynamicIndex
+			});
+			addNote(voice, noteIds[harmonyIndex],{
+				volume: 0.5 * dynamicIndex
+			});
 			// if (voice.notesToPlay.indexOf(noteIds[melodyIndex]) === -1) voice.notesToPlay.push(noteIds[melodyIndex]);
 			// if (voice.notesToPlay.indexOf(noteIds[harmonyIndex]) === -1) voice.notesToPlay.push(noteIds[harmonyIndex]);
 		}
@@ -114,6 +124,8 @@ function draw(){
 	// clear canvases hack
 	r_canvas.height = r_canvas.height;
 	p_canvas.height = p_canvas.height;
+	d_canvas.height = d_canvas.height;
+	v_canvas.height = v_canvas.height;
 
 
 
@@ -121,11 +133,16 @@ function draw(){
 		var voice = currentSong.voices[voiceIndex];
 		drawBeats(r_ctx);
 		drawBeats(p_ctx);
+		drawBeats(d_ctx);
+		drawBeats(v_ctx);
 		drawComposite(r_ctx, voice.cycles.rhythmCycles.buffer);
 
 		drawComposite(p_ctx, Array.add(voice.cycles.pitchCycles.buffer, voice.cycles.harmonyCycles.buffer), "#088");
 		drawComposite(p_ctx, voice.cycles.pitchCycles.buffer);
+		drawComposite(d_ctx, voice.cycles.durationCycles.buffer);
+		drawComposite(v_ctx, voice.cycles.dyanmicCycles.buffer);
 
+		drawthreshold(r_ctx);
 		drawthreshold(r_ctx);
 	}
 }
@@ -135,14 +152,26 @@ function playNotes(){
 		var voice = currentSong.voices[voiceIndex];
 		
 		for (var i = 0, endi = voice.notesToPlay.length; i < endi; i++){
-			createjs.Sound.play(voice.instrument + voice.notesToPlay[i]);
+			var note = voice.notesToPlay[i];
+			createjs.Sound.play(voice.instrument + note.noteId, {
+				volume: note.volume,
+				startTime: 0,
+				duration: note.duration * beatTime
+			});
 		}
 	}
 }
 
 function addNote(voice, noteId, options){
+	options = options || {};
+	var note = {
+			noteId: noteId,
+			duration: options.duration || 2, // beats
+			volume: (options.volume >= 0) ? options.volume : 1
+		}
+
 	if (voice.notesToPlay.indexOf(noteId) === -1){
-		voice.notesToPlay.push(noteId)
+		voice.notesToPlay.push(note)
 	}
 }
 
@@ -154,10 +183,14 @@ function onSoundsLoad(event) {
 }
 
 function onResize(){
-	p_canvas.height = document.body.offsetHeight >> 1;
-	p_canvas.width = document.body.offsetWidth;
-	r_canvas.height = document.body.offsetHeight >> 1;
-	r_canvas.width = document.body.offsetWidth;
+	p_canvas.height = p_canvas.parentNode.offsetHeight;
+	p_canvas.width = p_canvas.parentNode.offsetWidth;
+	r_canvas.height = p_canvas.parentNode.offsetHeight;
+	r_canvas.width = p_canvas.parentNode.offsetWidth;
+	v_canvas.height = p_canvas.parentNode.offsetHeight;
+	v_canvas.width = p_canvas.parentNode.offsetWidth;
+	d_canvas.height = p_canvas.parentNode.offsetHeight;
+	d_canvas.width = p_canvas.parentNode.offsetWidth;
 
 	settings.offsetY = r_canvas.height >> 1;
 	settings.amplitude = -r_canvas.height >> 2;
@@ -165,6 +198,7 @@ function onResize(){
 	for (var voiceIndex = 0, endVoiceIndex = currentSong.voices.length; voiceIndex < endVoiceIndex; voiceIndex++){
 		var voice = currentSong.voices[voiceIndex];
 		scalePitchMarkers(voice);
+		scaleDurationMarkers(voice);
 	}
 }
 
@@ -174,6 +208,7 @@ function onResize(){
 
 var beatMarkersX = [];
 var pitchMarkers = [];
+var durationMarkers = [];
 var numBeats = 0;
 
 var currentSong;
@@ -193,15 +228,22 @@ function changeSong(songName){
 	settings.bassFrequency = songs[songName].bassFrequency;
 	settings.changeRate = songs[songName].changeRate;
 
+	for (var voiceIndex = 0, endVoiceIndex = currentSong.voices.length; voiceIndex < endVoiceIndex; voiceIndex++){
+		var voice = currentSong.voices[voiceIndex];
+		makeDurationMarkers(voice, 5);
+		scaleDurationMarkers(voice);
+	}
+
 	changeChord();
 
 	console.log(songs[songName])
 }
 
+var beatTime = 0;
 function changeTempo(tempo){
 	var bpm = tempo;
 	//time between beats
-	var beatTime = 60000 / bpm;
+	beatTime = 60000 / bpm;
 	//1000 / framerate
 	var cycleUpdateTime = 1000 / 60;
 	//frames per beat
@@ -240,6 +282,25 @@ function scalePitchMarkers(voice){
 		voice.pitchMarkers[i].style.height = ((container.offsetHeight / endi) - 1) + "px";
 	}
 }
+function makeDurationMarkers(voice, num){
+	
+	var container = document.querySelector('#duration-markers');
+	container.innerHTML = "";
+	var durationMarkers = voice.durationMarkers = [];
+	for (var i = 0; i < num; i++){
+		var durationMarker = document.createElement("div");
+		durationMarker.classList.add('duration-marker');
+		container.appendChild(durationMarker);
+		durationMarkers.push(durationMarker);
+	}
+}
+
+function scaleDurationMarkers(voice){
+	var container = document.querySelector('#duration-markers');
+	for (var i = 0, endi = voice.durationMarkers.length; i < endi; i++){
+		voice.durationMarkers[i].style.height = ((container.offsetHeight / endi) - 1) + "px";
+	}
+}
 
 function shiftCycle(cycle){
 	var cycleValue = composeCycles(cycle);
@@ -274,16 +335,14 @@ function inflection(buffer){
 
 function composeCycles(cycles){
 	var maxBufferLength = r_canvas.offsetWidth / settings.speedX;
-	return d3.mean(
-		cycles.map(function(obj){
+	return cycles.map(function(obj){
 			//magic math here
 			if (obj.buffer.length >= maxBufferLength || obj.noBuffer === true){
 				obj.buffer.pop();
 			}
 			obj.buffer.unshift(Math.cos(frameCount * obj.rate * beatRate) * obj.scale);
 			return obj.buffer[0];
-		})
-	);
+		}).mean();
 }
 
 function beat(){
@@ -368,6 +427,18 @@ Array.add = function(){
 		}
 	}
 	return output;
+}
+
+Array.prototype.sum = function(){
+	var sum = 0;
+	for (var i = 0, endi = this.length; i < endi; i++){
+		sum += this[i];
+	}
+	return sum;
+}
+
+Array.prototype.mean = function(){
+	return this.sum() / this.length;
 }
 
 function clamp(val, min, max){
