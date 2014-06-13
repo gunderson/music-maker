@@ -96,8 +96,10 @@ function update(){
 
 			highlightNote(voice, melodyIndex,harmonyIndex);
 
-			if (voice.notesToPlay.indexOf(noteIds[melodyIndex]) === -1) voice.notesToPlay.push(noteIds[melodyIndex]);
-			if (voice.notesToPlay.indexOf(noteIds[harmonyIndex]) === -1) voice.notesToPlay.push(noteIds[harmonyIndex]);
+			addNote(voice, noteIds[melodyIndex]);
+			addNote(voice, noteIds[harmonyIndex]);
+			// if (voice.notesToPlay.indexOf(noteIds[melodyIndex]) === -1) voice.notesToPlay.push(noteIds[melodyIndex]);
+			// if (voice.notesToPlay.indexOf(noteIds[harmonyIndex]) === -1) voice.notesToPlay.push(noteIds[harmonyIndex]);
 		}
 	}	
 }
@@ -139,8 +141,8 @@ function playNotes(){
 }
 
 function addNote(voice, noteId, options){
-	if (voice.notesToPlay.indexOf(noteIds[noteId]) === -1){
-		voice.notesToPlay.push(noteIds[noteI]);
+	if (voice.notesToPlay.indexOf(noteId) === -1){
+		voice.notesToPlay.push(noteId)
 	}
 }
 
@@ -292,10 +294,8 @@ function beat(){
 
 	var bassNote = changes[chordIndex].substr(0,1) + 0
 
-	if (numBeats % settings.bassFrequency === 0 &&
-		currentSong.voices[0].notesToPlay.indexOf(bassNote) === -1) {
-
-		currentSong.voices[0].notesToPlay.push(bassNote);
+	if (numBeats % settings.bassFrequency === 0) {
+		addNote(currentSong.voices[0], bassNote);
 	}
 }
 
