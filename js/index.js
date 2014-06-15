@@ -34,7 +34,7 @@ function setup(){
 	settings = {
 		offsetY: r_canvas.offsetHeight >> 1,
 		amplitude: -r_canvas.offsetHeight >> 2,
-		speedX: 5, // px/frame
+		speedX: 10, // px/frame
 		bassFrequency: 2
 	};
 
