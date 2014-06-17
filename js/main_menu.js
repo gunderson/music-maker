@@ -1,109 +1,131 @@
+define(["TweenMax", "index"],function(){
 
-var openBtn = document.querySelector("#open-btn");
-var closeBtn = document.querySelector("#close-btn");
-openBtn.addEventListener("click", function(){
-	TweenMax.to("#main-menu", 0.5, {right: 0});
-	openBtn.style.display = "none";
-	closeBtn.style.display = "block";
-});
-closeBtn.addEventListener("click", function(){
-	TweenMax.to("#main-menu", 0.5, {right: -160});
-	openBtn.style.display = "block";
-	closeBtn.style.display = "none";
-});
+	require("index");
+	require("TweenMax");
 
-
-
-var playBtn = document.querySelector("#play-btn");
-var pauseBtn = document.querySelector("#pause-btn");
-var waltzBtn = document.querySelector("#waltz-btn");
-var demoBtn = document.querySelector("#demo-btn");
-
-playBtn.addEventListener("click", play);
-pauseBtn.addEventListener("click", stop);
-
-waltzBtn.addEventListener("click", function(){
-	document.querySelector("#waltz-controls").style.display = "block";
-	document.querySelector("#demo-controls").style.display = "none";
-	changeSong("waltz");
-});
-demoBtn.addEventListener("click", function(){
-	document.querySelector("#waltz-controls").style.display = "none";
-	document.querySelector("#demo-controls").style.display = "block";
-	changeSong("demo");
-});
-
-/**********************************************************/
-// Game Events
-/**********************************************************/
-var resetBtn = document.querySelector("#reset-btn");
-
-resetBtn.addEventListener("click", function(){
-	TweenMax.to(currentSong.voices[2], 0.5, {threshold:  0.1});
-	TweenMax.to(currentSong.voices[1], 0.5, {threshold:  0.20});
-});
-
-var aceBtn = document.querySelector("#ace-btn");
-
-aceBtn.addEventListener("click", function(){
-	TweenMax.to(currentSong.voices[1], 0.5, {threshold: -0.5});
-	TweenMax.to(currentSong.voices[1], 3, {threshold:  0.20, delay: 3});
-});
-
-var breakBtn = document.querySelector("#break-btn");
-
-breakBtn.addEventListener("click", function(){
-	TweenMax.to(currentSong.voices[2], 0.5, {threshold: -0.5});
-	TweenMax.to(currentSong.voices[2], 3, {threshold:  0.1, delay: 3});
-});
+	var openBtn = document.querySelector("#open-btn");
+	var closeBtn = document.querySelector("#close-btn");
+	openBtn.addEventListener("click", function(){
+		TweenMax.to("#main-menu", 0.5, {right: 0});
+		openBtn.style.display = "none";
+		closeBtn.style.display = "block";
+	});
+	closeBtn.addEventListener("click", function(){
+		TweenMax.to("#main-menu", 0.5, {right: -160});
+		openBtn.style.display = "block";
+		closeBtn.style.display = "none";
+	});
 
 
 
-/**********************************************************/
-// Demo Events
-/**********************************************************/
+	var playBtn = document.querySelector("#play-btn");
+	var pauseBtn = document.querySelector("#pause-btn");
 
-var demo0btn = document.querySelector("#demo-0-btn");
+	playBtn.addEventListener("click", play);
+	pauseBtn.addEventListener("click", stop);
 
-demo0btn.addEventListener("click", function(){
-	TweenMax.to(currentSong.voices[0].cycles.rhythmCycles[1], 2, {scale: 0});
-	TweenMax.to(currentSong.voices[0].cycles.rhythmCycles[2], 2, {scale: 0});
-	TweenMax.to(currentSong.voices[0].cycles.rhythmCycles[3], 2, {scale: 0});
-	TweenMax.to(currentSong.voices[0].cycles.harmonyCycles[0], 2, {scale: 0});
-	TweenMax.to(currentSong.voices[0].cycles.harmonyCycles[1], 2, {scale: 0});
-});
+	var visBtn = document.querySelector("#vis-btn");
 
-var demo1btn = document.querySelector("#demo-1-btn");
+	visBtn.addEventListener("click", function(){
+		window.settings.vis = !settings.vis;
+	});
 
-demo1btn.addEventListener("click", function(){
-	TweenMax.to(currentSong.voices[0].cycles.rhythmCycles[1], 2, {scale: 1});
-});
+	var elfmanBtn = document.querySelector("#elfman-btn");
+	elfmanBtn.addEventListener("click", function(){
+		document.querySelector("#elfman-controls").style.display = "block";
+		document.querySelector("#demo-controls").style.display = "none";
+		changeSong("elfman");
+	});
 
-var demo2btn = document.querySelector("#demo-2-btn");
+	var progressiveBtn = document.querySelector("#progressive-btn");
+	progressiveBtn.addEventListener("click", function(){
+		document.querySelector("#elfman-controls").style.display = "none";
+		document.querySelector("#demo-controls").style.display = "none";
+		changeSong("progressive");
+	});
 
-demo2btn.addEventListener("click", function(){
-	TweenMax.to(currentSong.voices[0].cycles.rhythmCycles[2], 2, {scale: 1});
-});
+	var demoBtn = document.querySelector("#demo-btn");
+	demoBtn.addEventListener("click", function(){
+		document.querySelector("#elfman-controls").style.display = "none";
+		document.querySelector("#demo-controls").style.display = "block";
+		changeSong("demo");
+	});
 
-var demo3btn = document.querySelector("#demo-3-btn");
+	/**********************************************************/
+	// Game Events
+	/**********************************************************/
+	/*var resetBtn = document.querySelector("#reset-btn");
 
-demo3btn.addEventListener("click", function(){
-	TweenMax.to(currentSong.voices[0].cycles.rhythmCycles[3], 2, {scale: 1});
-});
+	resetBtn.addEventListener("click", function(){
+		TweenMax.to(currentSong.voices[2], 0.5, {threshold:  0.1});
+		TweenMax.to(currentSong.voices[1], 0.5, {threshold:  0.20});
+	});*/
+
+	var aceBtn = document.querySelector("#ace-btn");
+
+	aceBtn.addEventListener("click", function(){
+		TweenMax.to(currentSong.voices[1], 0.5, {threshold: -0.5});
+		TweenMax.to(currentSong.voices[1], 3, {threshold:  0.20, delay: 3});
+	});
+
+	var breakBtn = document.querySelector("#break-btn");
+
+	breakBtn.addEventListener("click", function(){
+		TweenMax.to(currentSong.voices[2], 0.5, {threshold: -0.5});
+		TweenMax.to(currentSong.voices[2], 3, {threshold:  0.1, delay: 3});
+		TweenMax.to(currentSong.voices[0], 0.5, {threshold: -0.5});
+		TweenMax.to(currentSong.voices[0], 3, {threshold:  0.15, delay: 3});
+	});
 
 
 
-var thresholdbtn = document.querySelector("#threshold-btn");
+	/**********************************************************/
+	// Demo Events
+	/**********************************************************/
 
-thresholdbtn.addEventListener("click", function(){
-	TweenMax.to(currentSong.voices[0], 0.5, {threshold: -0.5});
-	TweenMax.to(currentSong.voices[0], 3, {threshold:  0.15, delay: 3});
-});
+	var demo0btn = document.querySelector("#demo-0-btn");
 
-var harmony = document.querySelector("#harmony-btn");
+	demo0btn.addEventListener("click", function(){
+		TweenMax.to(currentSong.voices[0].cycles.rhythmCycles[1], 2, {scale: 0});
+		TweenMax.to(currentSong.voices[0].cycles.rhythmCycles[2], 2, {scale: 0});
+		TweenMax.to(currentSong.voices[0].cycles.rhythmCycles[3], 2, {scale: 0});
+		TweenMax.to(currentSong.voices[0].cycles.harmonyCycles[0], 2, {scale: 0});
+		TweenMax.to(currentSong.voices[0].cycles.harmonyCycles[1], 2, {scale: 0});
+	});
 
-harmony.addEventListener("click", function(){
-	TweenMax.to(currentSong.voices[0].cycles.harmonyCycles[0], 2, {scale: 0.33});
-	TweenMax.to(currentSong.voices[0].cycles.harmonyCycles[1], 2, {scale: 0.27});
-});
+	var demo1btn = document.querySelector("#demo-1-btn");
+
+	demo1btn.addEventListener("click", function(){
+		TweenMax.to(currentSong.voices[0].cycles.rhythmCycles[1], 2, {scale: 1});
+	});
+
+	var demo2btn = document.querySelector("#demo-2-btn");
+
+	demo2btn.addEventListener("click", function(){
+		TweenMax.to(currentSong.voices[0].cycles.rhythmCycles[2], 2, {scale: 1});
+	});
+
+	var demo3btn = document.querySelector("#demo-3-btn");
+
+	demo3btn.addEventListener("click", function(){
+		TweenMax.to(currentSong.voices[0].cycles.rhythmCycles[3], 2, {scale: 1});
+	});
+
+
+
+	var thresholdbtn = document.querySelector("#threshold-btn");
+
+	thresholdbtn.addEventListener("click", function(){
+		TweenMax.to(currentSong.voices[0], 0.5, {threshold: -0.5});
+		TweenMax.to(currentSong.voices[0], 3, {threshold:  0.15, delay: 3});
+	});
+
+	var harmony = document.querySelector("#harmony-btn");
+
+	harmony.addEventListener("click", function(){
+		TweenMax.to(currentSong.voices[0].cycles.harmonyCycles[0], 2, {scale: 0.33});
+		TweenMax.to(currentSong.voices[0].cycles.harmonyCycles[1], 2, {scale: 0.27});
+	});
+
+})
 

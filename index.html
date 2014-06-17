@@ -1,7 +1,7 @@
 <html>
-<html>
-<html>
 <head>
+    <title>Music Composer</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, user-scalable=no">
 	<link href="css/index.css" rel="stylesheet" />
 	<link href="css/font-awesome.min.css" rel="stylesheet" />
 </head>
@@ -34,18 +34,19 @@
 
 		<button id='play-btn'>Play</button>
 		<button id='pause-btn'>Pause</button>
+		<button id='vis-btn'>Toggle Vis</button>
 		<div id="playlist-controls">
 		<hr />
 			<h2>Change Song</h2>
-			<button id='waltz-btn'>"Waltz"</button>
+			<button id='elfman-btn'>"Elfman"</button>
+			<button id='progressive-btn'>"Deuce"</button>
 			<button id='demo-btn'>"Demo"</button>
 		</div>
-		<div id="waltz-controls">
+		<div id="elfman-controls">
 		<hr />
-			<h2>Waltz Controls</h2>
-			<button id='reset-btn'>reset</button>
+			<h2>Game Events</h2>
 			<button id='ace-btn'>Ace</button>
-			<button id='break-btn'>Break</button>
+			<button id='break-btn'>Break Point</button>
 		</div>
 		<div id="demo-controls">
 		<hr />
@@ -63,11 +64,15 @@
 		<button id='stairway-btn'>"Stairway"</button>
 		<button id='sia-btn'>"sia"</button> -->
 	</div>
-	<div id="loader">
+	<div id="loader" class="modal">
 		<h2>Loading <span  class="fa fa-spin fa-circle-o-notch"></span></h2>
 	</div>
+	<div id="click-to-start" class="modal">
+		<h2>Click to Start</h2>
+	</div>
+    <script data-main="js/master" src="bower_components/requirejs/require.js"></script>
 </body>
-<script src="bower_components/jquery/dist/jquery.min.js"></script>
+<!--script src="bower_components/jquery/dist/jquery.min.js"></script>
 <script src="bower_components/lodash/dist/lodash.min.js"></script>
 <script src="bower_components/dat-gui/build/dat.gui.js"></script>
 <script src="bower_components/SoundJS/lib/soundjs-NEXT.min.js"></script>
@@ -76,7 +81,7 @@
 <script src="js/index.js"></script>
 <script src="js/songs.js"></script>
 <script src="js/sound.js"></script>
-<script src="js/main_menu.js"></script>
+<script src="js/main_menu.js"></script-->>
 
 <script type="text/template" id="voice-template">
 

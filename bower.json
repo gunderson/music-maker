@@ -14,6 +14,7 @@
     "SoundJS": "*",
     "lodash": "~2.4.1",
     "jquery": "~2.1.1",
-    "greensock": "~1.11.8"
+    "greensock": "~1.11.8",
+    "requirejs": "~2.1.14"
   }
 }
